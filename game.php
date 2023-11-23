@@ -72,8 +72,67 @@ include "gameDAO.php";
             $this->piege = $piege;
             $this->marchand = $marchand;
         }
+
+        public function getDescription() {
+            return $this->description;
+        }
+
+        public function getMonstre() {
+            return $this->monstre;
+        }
+
+        public function getEnigme() {
+            return $this->enigme;
+        }
+
+        public function getPiege() {
+            return $this->piege;
+        }
+
+        public function getMarchand() {
+            return $this->marchand;
+        }
     }
 
+    class EnigmeSalle extends Salle {
+        private $enigme;
+    
+        public function __construct($description, $enigme) {
+            parent::__construct($description, null, $enigme, null, null);
+            $this->enigme = $enigme;
+        }
+    
+        public function getEnigme() {
+            return $this->enigme;
+        }
+    }
+    
+    class PiegeSalle extends Salle {
+        private $piege;
+    
+        public function __construct($description, $piege) {
+            parent::__construct($description, null, null, $piege, null);
+            $this->piege = $piege;
+        }
+    
+        public function getPiege() {
+            return $this->piege;
+        }
+    }
+    
+    class MarchandSalle extends Salle {
+        private $marchand;
+    
+        public function __construct($description, $marchand) {
+            parent::__construct($description, null, null, null, $marchand);
+            $this->marchand = $marchand;
+        }
+    
+        public function getMarchand() {
+            return $this->marchand;
+        }
+    }
+    
     $personnageDAO = new PersonnageDAO($connexion);
 
     echo"Bienvenue dans le Donjon !\n";
@@ -81,5 +140,6 @@ include "gameDAO.php";
 
 
     $personnageDAO->listerPersonnages();
-    // $personnageDAO->equiperArme(1, 1);
+
+?>
 
