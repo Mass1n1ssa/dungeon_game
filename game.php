@@ -54,14 +54,14 @@ include "gameDAO.php";
         public function getNv() {
             return $this->nv;
         }
-        
+
 
     }
 
     $personnageDAO = new PersonnageDAO($connexion);
 
     echo"Bienvenue dans le Donjon !\n";
-    echo"Choisissez votre personnage :\n";
+    echo"Voici les personnages Disponibles :\n";
 
 
     $personnageDAO->listerPersonnages();
