@@ -124,46 +124,6 @@ include "gameDAO.php";
     Class MonstreS extends Salle {
 
     }
-    
-    // $personnageDAO = new PersonnageDAO($connexion);
-
-    // echo"Bienvenue dans le Donjon !\n";
-    // echo"Voici les personnages Disponibles :\n";
-
-
-    // $personnageDAO->listerPersonnages();
-    // $quitter = false;
-
-    // while (!$quitter) {
-    //     echo "1. Commencer une nouvelle partie\n";
-    //     echo "2. Sauvegarder\n";
-    //     echo "3. Recharger\n";
-    //     echo "4. Quitter\n";
-
-    //     $choix = readline("Choisissez une option : ");
-
-    //     switch ($choix) {
-    //         case '1':
-    //             echo "Nouvelle partie...\n";
-                
-    //             break;
-    //         case '2':
-    //             echo "Sauvegarde...\n";
-    //             // Mettre ici votre code pour sauvegarder
-    //             break;
-    //         case '3':
-    //             echo "Charger...\n";
-    //             // Mettre ici votre code pour recharger la partie
-    //             break;
-    //         case '4':
-    //             echo "À bientôt !\n";
-    //             $quitter = true;
-    //             break;
-    //         default:
-    //             echo "Option invalide. Veuillez choisir une option valide.\n";
-    //             break;
-    //     }
-    // }
    
     $personnageDAO = new PersonnageDAO($connexion);
     echo "Bienvenue dans le Donjon !\n";
