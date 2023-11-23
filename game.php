@@ -80,21 +80,8 @@ include "gameDAO.php";
 
     }
 
-    class Salle {
-        private $description;
-        private $monstre;
-        private $enigme;
-        private $piege;
-        private $marchand;
-        
-        public function __construct($description, $monstre, $enigme, $piege, $marchand) {
-            $this->description = $description;
-            $this->monstre = $monstre;
-            $this->enigme = $enigme;
-            $this->piege = $piege;
-            $this->marchand = $marchand;
-        }
-    }
+ 
+    
 
     $personnageDAO = new PersonnageDAO($connexion);
 
@@ -104,4 +91,37 @@ include "gameDAO.php";
 
     $personnageDAO->listerPersonnages();
     // $personnageDAO->equiperArme(1, 1);
+    $quitter = false;
+
+while (!$quitter) {
+    echo "1. Commencer une nouvelle partie\n";
+    echo "2. Sauvegarder\n";
+    echo "3. Recharger\n";
+    echo "4. Quitter\n";
+
+    $choix = readline("Choisissez une option : ");
+
+    switch ($choix) {
+        case '1':
+            echo "Nouvelle partie...\n";
+            
+            break;
+        case '2':
+            echo "Sauvegarde...\n";
+            // Mettre ici votre code pour sauvegarder
+            break;
+        case '3':
+            echo "Charger...\n";
+            // Mettre ici votre code pour recharger la partie
+            break;
+        case '4':
+            echo "À bientôt !\n";
+            $quitter = true;
+            break;
+        default:
+            echo "Option invalide. Veuillez choisir une option valide.\n";
+            break;
+    }
+}
+
 
