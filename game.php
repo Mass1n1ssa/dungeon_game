@@ -55,16 +55,18 @@ include "gameDAO.php";
             return $this->nv;
         }
 
-
+        public function getArme() {
+            return $this->arme;
+        }
     }
 
-    class Salle {
+    Class Salle{
         private $description;
         private $monstre;
         private $enigme;
         private $piege;
         private $marchand;
-        
+    
         public function __construct($description, $monstre, $enigme, $piege, $marchand) {
             $this->description = $description;
             $this->monstre = $monstre;
@@ -72,65 +74,41 @@ include "gameDAO.php";
             $this->piege = $piege;
             $this->marchand = $marchand;
         }
-
-        public function getDescription() {
-            return $this->description;
-        }
-
-        public function getMonstre() {
-            return $this->monstre;
-        }
-
-        public function getEnigme() {
-            return $this->enigme;
-        }
-
-        public function getPiege() {
-            return $this->piege;
-        }
-
-        public function getMarchand() {
-            return $this->marchand;
-        }
     }
 
-    class EnigmeSalle extends Salle {
-        private $enigme;
-    
-        public function __construct($description, $enigme) {
-            parent::__construct($description, null, $enigme, null, null);
-            $this->enigme = $enigme;
-        }
-    
-        public function getEnigme() {
-            return $this->enigme;
-        }
+    public function getDescription() {
+        return $this->description;
+    }
+
+    public function getMonstre() {
+        return $this->monstre;
+    }
+
+    public function getEnigme() {
+        return $this->enigme;
+    }
+
+    public function getPiege() {
+        return $this->piege;
+    }
+
+    public function getMarchand() {
+        return $this->marchand;
+    }
+
+    class EnigmeS extends Salle {
     }
     
-    class PiegeSalle extends Salle {
-        private $piege;
-    
-        public function __construct($description, $piege) {
-            parent::__construct($description, null, null, $piege, null);
-            $this->piege = $piege;
-        }
-    
-        public function getPiege() {
-            return $this->piege;
-        }
+    class PiegeS extends Salle {
+        
     }
     
-    class MarchandSalle extends Salle {
-        private $marchand;
-    
-        public function __construct($description, $marchand) {
-            parent::__construct($description, null, null, null, $marchand);
-            $this->marchand = $marchand;
-        }
-    
-        public function getMarchand() {
-            return $this->marchand;
-        }
+    class MarchandS extends Salle {
+       
+    }
+
+    Class MonstreS extends Salle {
+
     }
     
     $personnageDAO = new PersonnageDAO($connexion);
@@ -139,7 +117,40 @@ include "gameDAO.php";
     echo"Voici les personnages Disponibles :\n";
 
 
-    $personnageDAO->listerPersonnages();
+    // $personnageDAO->listerPersonnages();
+    // $quitter = false;
 
-?>
+    // while (!$quitter) {
+    //     echo "1. Commencer une nouvelle partie\n";
+    //     echo "2. Sauvegarder\n";
+    //     echo "3. Recharger\n";
+    //     echo "4. Quitter\n";
+
+    //     $choix = readline("Choisissez une option : ");
+
+    //     switch ($choix) {
+    //         case '1':
+    //             echo "Nouvelle partie...\n";
+                
+    //             break;
+    //         case '2':
+    //             echo "Sauvegarde...\n";
+    //             // Mettre ici votre code pour sauvegarder
+    //             break;
+    //         case '3':
+    //             echo "Charger...\n";
+    //             // Mettre ici votre code pour recharger la partie
+    //             break;
+    //         case '4':
+    //             echo "À bientôt !\n";
+    //             $quitter = true;
+    //             break;
+    //         default:
+    //             echo "Option invalide. Veuillez choisir une option valide.\n";
+    //             break;
+    //     }
+    // }
+
+    $personnageDAO->marcher();
+
 
