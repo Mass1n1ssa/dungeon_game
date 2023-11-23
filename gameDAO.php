@@ -69,20 +69,28 @@ class PersonnageDAO {
             $resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
 
             $salle = $resultats[rand(0, count($resultats) - 1)];
+
+           echo "Vous arrivez dans une salle : " . $salle['type'] . "\n";
+               
+                if ($salle['type'] === "monstre") {
+                    $this->combat();
+                } else if ($salle['type'] === "enigme") {
+                    $this->enigme();
+                } else if ($salle['type'] === "piege") {
+                    $this->piege();
+                } else if ($salle['type'] === "marchand") {
+                    $this->marchand();
+                } else {
+                    echo "Vous continuez votre chemin !\n";
+                    $this->startGame();
+                }
             
         }
-       
-    public function rencontrerMonstre(){
-        $requete = $this->bdd->prepare("SELECT * FROM Monstres");
-        $requete->execute();
-        $resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
-    
-        $monstre = $resultats[rand(0, count($resultats) - 1)];
-    
-        echo "Vous avez rencontré un " . $monstre['nom'] . " !\n";
-    
-        $this->combattre($monstre);
+    public function combat(){
+        
     }
+       
+    
 }
 
 ?>
