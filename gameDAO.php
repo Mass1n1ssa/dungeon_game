@@ -22,6 +22,27 @@ class PersonnageDAO {
         }
     }
 
+    public function equiperArme($personnageId, $armeId) {
+        // Vérifier si l'arme existe et si le personnage peut l'équiper
+        $requete = $this->bdd->prepare("SELECT * FROM Armes WHERE id = :armeId AND niveau_minimum_requis <= (SELECT niveau FROM Personnages WHERE id = :personnageId)");
+        $requete->bindParam(':armeId', $armeId, PDO::PARAM_INT);
+        $requete->bindParam(':personnageId', $personnageId, PDO::PARAM_INT);
+        $requete->execute();
+        $arme = $requete->fetch(PDO::FETCH_ASSOC);
+
+        if ($arme) {
+            // Équiper l'arme au personnage
+            $updateArme = $this->bdd->prepare("UPDATE Personnages SET arme = :armeId WHERE id = :personnageId");
+            $updateArme->bindParam(':armeId', $armeId, PDO::PARAM_INT);
+            $updateArme->bindParam(':personnageId', $personnageId, PDO::PARAM_INT);
+            $updateArme->execute();
+
+            echo "L'arme " . $arme['nom'] . " a été équipée avec succès par le personnage.\n";
+        } else {
+            echo "Impossible d'équiper l'arme. Vérifiez les conditions requises.\n";
+        }
+    }
+
 }
 
 ?>

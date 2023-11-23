@@ -58,6 +58,22 @@ include "gameDAO.php";
 
     }
 
+    class Salle {
+        private $description;
+        private $monstre;
+        private $enigme;
+        private $piege;
+        private $marchand;
+        
+        public function __construct($description, $monstre, $enigme, $piege, $marchand) {
+            $this->description = $description;
+            $this->monstre = $monstre;
+            $this->enigme = $enigme;
+            $this->piege = $piege;
+            $this->marchand = $marchand;
+        }
+    }
+
     $personnageDAO = new PersonnageDAO($connexion);
 
     echo"Bienvenue dans le Donjon !\n";
@@ -65,3 +81,5 @@ include "gameDAO.php";
 
 
     $personnageDAO->listerPersonnages();
+    // $personnageDAO->equiperArme(1, 1);
+
