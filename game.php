@@ -1,41 +1,67 @@
 <?php
-    include "config.php";
-    include "gameDAO.php";
 
-    Class Personnage{
+include "config.php";
+include "gameDAO.php";
+
+    class Personnage {
+        private $id;
         private $nom;
         private $pv;
         private $pa;
         private $pd;
-        private $xp;
+        private $exp;
         private $nv;
         private $arme;
 
-        public function __construct($nom, $pv, $pa, $pd, $xp, $niveau){
+
+    
+        public function __construct($id, $nom, $pv, $pa, $pd, $exp, $nv, $arme) {
+            $this->id = $id;
             $this->nom = $nom;
             $this->pv = $pv;
             $this->pa = $pa;
             $this->pd = $pd;
-            $this->xp = $xp;
+            $this->exp = $exp;
             $this->nv = $nv;
             $this->arme = $arme;
         }
-    }
 
 
-    Class Salle {
-        private $description;
-        private $monstre;
-        private $enigme;
-        private $piege;
-        private $marchand;
-        
-        public function __construct($description, $monstre, $enigme, $piege, $marchand){
-            $this->description = $description;
-            $this->monstre = $monstre;
-            $this->enigme = $enigme;
-            $this->piege = $piege;
-            $this->marchand = $marchand;
+        public function getId() {
+            return $this->id;
         }
+
+        public function getNom() {
+            return $this->nom;
+        }
+
+        public function getPv() {
+            return $this->pv;
+        }
+
+        public function getPa() {
+            return $this->pa;
+        }
+
+        public function getPd() {
+            return $this->pd;
+        }
+
+        public function getExp() {
+            return $this->exp;
+        }
+
+        public function getNv() {
+            return $this->nv;
+        }
+        
+
     }
-    
+
+    $personnageDAO = new PersonnageDAO($connexion);
+
+    echo"Bienvenue dans le Donjon !\n";
+    echo"Choisissez votre personnage :\n";
+
+
+    $personnageDAO->listerPersonnages();
