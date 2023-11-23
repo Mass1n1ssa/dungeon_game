@@ -13,14 +13,24 @@ class PersonnageDAO {
         $resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
     
         foreach ($resultats as $resultat) {
-            echo  " - Nom : " . $resultat['nom'] . 
+            echo  " " . $resultat['id'] .
+                  " - Nom : " . $resultat['nom'] . 
                   " - Points de vie : " . $resultat['points_de_vie'] . 
                   " - Points d'attaque : " . $resultat['points_attaque'] . 
                   " - Points de défense : " . $resultat['points_defense'] . 
                   " - Expérience : " . $resultat['experience'] . 
                   " - Niveau : " . $resultat['niveau'] . "\n";
         }
+    
+        $idChoisi = readline("Choisissez le numéro du personnage avec lequel vous voulez combattre : ");
+    
+        $requete = $this->bdd->prepare("SELECT * FROM personnages WHERE id = ?");
+        $requete->execute([$idChoisi]);
+        $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+    
+        echo "L'aventure va commencer avec le personnage : " . $resultat['nom'] . "\n";
     }
+    
 
     public function equiperArme($personnageId, $armeId) {
         // Vérifier si l'arme existe et si le personnage peut l'équiper
