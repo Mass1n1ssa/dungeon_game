@@ -55,6 +55,28 @@ include "gameDAO.php";
             return $this->nv;
         }
 
+        public function getArme() {
+            return $this->arme;
+        }
+
+
+     
+        }
+        class Salle {
+            private $description;
+            private $monstre;
+            private $enigme;
+            private $piege;
+            private $marchand;
+        
+            public function __construct($description) {
+                $this->description = $description;
+                $this->monstre = null;
+                $this->enigme = null;
+                $this->piege = null;
+                $this->marchand = null;
+            }
+        
 
     }
 
