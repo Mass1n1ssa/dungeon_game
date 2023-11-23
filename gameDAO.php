@@ -40,24 +40,44 @@
             $this->bdd = $bdd;
         }
     
+        public function poserEnigme() {
+            $requete = $this->bdd->prepare("SELECT * FROM enigmes ORDER BY RAND() LIMIT 1");
+            $requete->execute();
+            $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+    
+            echo $resultat['question'] . "\n";
+            $reponseUtilisateur = trim(fgets(STDIN));
+    
+            if ($reponseUtilisateur == $resultat['reponse']) {
+                echo "Bravo, c'est la bonne réponse !\n";
+            } else {
+                echo "Désolé, ce n'est pas la bonne réponse.\n";
+            }
+        }
+
+        public function activePiege(){
+            $this->pv -=30; 
+        }
+
         public function marcher() {
             $requete = $this->bdd->prepare("SELECT * FROM salles ORDER BY RAND() LIMIT 1");
             $requete->execute();
             $resultat = $requete->fetch(PDO::FETCH_ASSOC);
     
             echo "Vous entrez dans une salle : " . $resultat['description'] . "\n";
-        }
 
-        public function poserEnigme() {
-            echo $this->question . "\n";
-            $reponseUtilisateur = trim(fgets(STDIN));
-    
-            if ($reponseUtilisateur == $this->reponse) {
-                echo "Bravo, c'est la bonne réponse !\n";
-            } else {
-                echo "Désolé, ce n'est pas la bonne réponse.\n";
+            if ($resultat['type'] == "enigme") {
+                $this->poserEnigme();
+            } else if ($resultat['type'] == "piege") {
+                $this->activePiege();
+                echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
+            } else if ($resultat['type'] == "marchand") {
+                echo "Vous êtes tombé sur un marchand !\n";
+            } else if ($resultat['type'] == "monstre") {
+                echo "Vous êtes tombé sur un monstre !\n";
             }
         }
+
     }
 
 ?>

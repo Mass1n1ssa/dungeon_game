@@ -12,8 +12,6 @@ include "gameDAO.php";
         private $exp;
         private $nv;
         private $arme;
-
-
     
         public function __construct($id, $nom, $pv, $pa, $pd, $exp, $nv, $arme) {
             $this->id = $id;
@@ -25,7 +23,6 @@ include "gameDAO.php";
             $this->nv = $nv;
             $this->arme = $arme;
         }
-
 
         public function getId() {
             return $this->id;
@@ -74,33 +71,50 @@ include "gameDAO.php";
             $this->piege = $piege;
             $this->marchand = $marchand;
         }
-    }
+    
 
-    public function getDescription() {
-        return $this->description;
-    }
+        public function getDescription() {
+            return $this->description;
+        }
 
-    public function getMonstre() {
-        return $this->monstre;
-    }
+        public function getMonstre() {
+            return $this->monstre;
+        }
 
-    public function getEnigme() {
-        return $this->enigme;
-    }
+        public function getEnigme() {
+            return $this->enigme;
+        }
 
-    public function getPiege() {
-        return $this->piege;
-    }
+        public function getPiege() {
+            return $this->piege;
+        }
 
-    public function getMarchand() {
-        return $this->marchand;
+        public function getMarchand() {
+            return $this->marchand;
+        }
     }
 
     class EnigmeS extends Salle {
+        private $question;
+        private $reponse;
+
+        public function __construct($description, $monstre, $enigme, $piege, $marchand, $question, $reponse) {
+            parent::__construct($description, $monstre, $enigme, $piege, $marchand);
+            $this->question = $question;
+            $this->reponse = $reponse;
+        }
+
+        public function getQuestion() {
+            return $this->question;
+        }
+
+        public function getReponse() {
+            return $this->reponse;
+        }
+
     }
     
     class PiegeS extends Salle {
-        
     }
     
     class MarchandS extends Salle {
@@ -111,10 +125,10 @@ include "gameDAO.php";
 
     }
     
-    $personnageDAO = new PersonnageDAO($connexion);
+    // $personnageDAO = new PersonnageDAO($connexion);
 
-    echo"Bienvenue dans le Donjon !\n";
-    echo"Voici les personnages Disponibles :\n";
+    // echo"Bienvenue dans le Donjon !\n";
+    // echo"Voici les personnages Disponibles :\n";
 
 
     // $personnageDAO->listerPersonnages();
@@ -151,6 +165,9 @@ include "gameDAO.php";
     //     }
     // }
 
-    $personnageDAO->marcher();
+    $donjon = new Donjon($connexion);
+    // $donjon->marcher();
+    $donjon->marcher();
+?>
 
 
