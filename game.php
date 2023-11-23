@@ -164,10 +164,12 @@ include "gameDAO.php";
     //             break;
     //     }
     // }
-
-    $donjon = new Donjon($connexion);
-    // $donjon->marcher();
-    $donjon->marcher();
+   
+    $personnageDAO = new PersonnageDAO($connexion);
+    echo "Bienvenue dans le Donjon !\n";
+    $personnageDAO->LancementJeu();
 ?>
 
+    
+    
 
