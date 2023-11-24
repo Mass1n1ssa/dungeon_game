@@ -45,6 +45,8 @@
     } else {
         echo "Au revoir !";
     }
+
+    $this->startGame($idChoisi);
 }
 
 
@@ -59,7 +61,7 @@ public function startGame($idChoisi){
         $choix = intval(readline("Que voulez-vous faire ? (1. Marcher / 2. Sauvegarder / 3. Quitter) : "));
 
         if ($choix === 1) {
-            $this->marcher();
+            $this->marcher($idChoisi);
         } else if ($choix === 2) {
             // À définir : logique pour sauvegarder
             echo "Vous avez sauvegardé.\n";
@@ -75,7 +77,7 @@ public function startGame($idChoisi){
         echo "Vous n'avez plus de points de vie. Game Over!\n";
     }
 }
-        public function marcher() {
+        public function marcher($idChoisi) {
             $requete = $this->bdd->prepare("SELECT * FROM salles ORDER BY RAND() LIMIT 1");
             $requete->execute();
             $resultat = $requete->fetch(PDO::FETCH_ASSOC);
@@ -83,7 +85,7 @@ public function startGame($idChoisi){
             echo "Vous entrez dans une salle : " . $resultat['description'] . "\n";
         
             if ($resultat['type'] == "enigme") {
-                $this->poserEnigme();
+                $this->poserEnigme($idChoisi);
             } else if ($resultat['type'] == "piege") {
                 $this->activePiege();
                 echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
@@ -94,22 +96,36 @@ public function startGame($idChoisi){
             }
         }
         
-       
-        public function poserEnigme() {
-            $requete = $this->bdd->prepare("SELECT * FROM enigmes ORDER BY RAND() LIMIT 1");
-            $requete->execute();
-            $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+  
+
+public function poserEnigme($idChoisi) {
+    $requete = $this->bdd->prepare("SELECT * FROM enigmes ORDER BY RAND() LIMIT 1");
+    $requete->execute();
+    $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+
+    echo $resultat['question'] . "\n";
+    $reponseUtilisateur = trim(readline("Entrez votre réponse : "));
+
+    if ($reponseUtilisateur == $resultat['reponse']) {
+        echo "Bravo, c'est la bonne réponse !\n";
+
+        // Sélection aléatoire d'un objet dans la table objets
+        $requeteObjetAleatoire = $this->bdd->query("SELECT id FROM objets ORDER BY RAND() LIMIT 1");
+        $idObjetGagne = $requeteObjetAleatoire->fetchColumn();
         
-            echo $resultat['question'] . "\n";
-            $reponseUtilisateur = trim(fgets(STDIN));
-        
-            if ($reponseUtilisateur == $resultat['reponse']) {
-                echo "Bravo, c'est la bonne réponse !\n";
-            } else {
-                echo "Désolé, ce n'est pas la bonne réponse.\n";
-                return $this->startGame();
-            }
+        if ($idObjetGagne) {
+            // Ajout de l'objet gagné dans l'inventaire du personnage
+            $requeteInsert = $this->bdd->prepare("INSERT INTO inventaire (personnage_id, objet_id, quantite) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE quantite = quantite + 1");
+            $requeteInsert->execute([$idChoisi, $idObjetGagne]);
+
+            echo "Vous avez gagné un nouvel objet !\n";
         }
+    } else {
+        echo "Désolé, ce n'est pas la bonne réponse.\n";
+        $this->marcher(); // Revenir à la marche après une réponse incorrecte
+    }
+}
+
         
         public function activePiege(){
             $this->pv -=30; 
