@@ -301,7 +301,9 @@
                 // Vérifier si le personnage a encore des points de vie
                 if ($pointsViePersonnage <= 0) {
                     echo "Vous avez été vaincu par le monstre!\n";
-                    break;
+                    
+                }elseif ($pointsVieMonstre <= 0) {
+                    echo "Vous avez vaincu le monstre!\n";
                 }
         
                 // Afficher les points de vie restants du personnage et du monstre pour continuer le combat
