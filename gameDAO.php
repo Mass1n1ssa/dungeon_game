@@ -48,7 +48,6 @@
             $this->startGame($idChoisi);
         }
 
-
         public function startGame($idChoisi){
             $requete = $this->bdd->prepare("SELECT points_de_vie FROM Personnages WHERE id = ?");
             $requete->execute([$idChoisi]);
@@ -87,17 +86,15 @@
             if ($resultat['type'] == "enigme") {
                 $this->poserEnigme($idChoisi);
             } else if ($resultat['type'] == "piege") {
-                $this->activePiege();
+                $this->activePiege($idChoisi);
                 echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
-            } else if ($resultat['type'] == "marchand") {
-                $this->marchand($idChoisi);
-            } else if ($resultat['type'] == "monstre") {
-                $this->combat();
-            }
+            }// } else if ($resultat['type'] == "marchand") {
+            //     $this->marchand($idChoisi);
+            // } else if ($resultat['type'] == "monstre") {
+            //     $this->combat();
+            // }
         }
         
-  
-
         public function poserEnigme($idChoisi) {
             $requete = $this->bdd->prepare("SELECT * FROM enigmes ORDER BY RAND() LIMIT 1");
             $requete->execute();
@@ -128,11 +125,18 @@
         }
 
         
-        public function activePiege(){
-            $this->pv -=30; 
+        public function activePiege($idChoisi) {
+            $requete = $this->bdd->prepare("SELECT points_de_vie FROM Personnages WHERE id = ?");
+            $requete->execute([$idChoisi]);
+            $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+        
+            $points_de_vie = $resultat['points_de_vie'] - 20;
+        
+            $requeteUpdate = $this->bdd->prepare("UPDATE Personnages SET points_de_vie = ? WHERE id = ?");
+            $requeteUpdate->execute([$points_de_vie, $idChoisi]);
+        
+            echo "En marchant sur un piège, vous perdez 20 points de vie !\n";
         }
-        
-        
 
         public function combat(){
             $requete = $this->bdd->prepare("SELECT * FROM personnages WHERE niveau = ?");
@@ -185,22 +189,31 @@
             }
         }        
         
-        
         public function effectuerEchange($objetMarchand, $choixInventaire, $idChoisi) {
-            $idPersonnage = $idChoisi; // À remplacer par l'ID du personnage en cours
+            $idPersonnage = $idChoisi;
+        
+            // Retrieve the level of the player from the database
+            $requeteNiveau = $this->bdd->prepare("SELECT niveau FROM Personnages WHERE id = ?");
+            $requeteNiveau->execute([$idPersonnage]);
+            $resultatNiveau = $requeteNiveau->fetch(PDO::FETCH_ASSOC);
+        
+            $niveauPersonnage = $resultatNiveau['niveau'];
+        
+            // Récupérer tous les objets dans l'inventaire du personnage
+            $requeteObjetsInventaire = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ?");
+            $requeteObjetsInventaire->execute([$idChoisi]);
+            $objetsInventaire = $requeteObjetsInventaire->fetchAll(PDO::FETCH_ASSOC);
         
             // Récupérer l'objet choisi dans l'inventaire du personnage
-            $requeteObjetChoisi = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ? LIMIT 1 OFFSET ?");
-            $requeteObjetChoisi->execute([$idPersonnage, intval($choixInventaire) - 1]);
-            $objetChoisi = $requeteObjetChoisi->fetch(PDO::FETCH_ASSOC);
+            $objetChoisi = $objetsInventaire[(int)$choixInventaire - 1];
         
-            // À compléter : Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
+            // Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
             if ($objetMarchand['niveau_requis'] > $niveauPersonnage) {
                 echo "Vous n'avez pas le niveau requis pour effectuer cet échange.\n";
                 return;
             }
         
-            // À compléter : Mettez à jour la table d'inventaire du personnage
+            // Mettez à jour la table d'inventaire du personnage
             // Supprimez l'objet choisi de l'inventaire
             $requeteSuppression = $this->bdd->prepare("DELETE FROM inventaire WHERE id = ?");
             $requeteSuppression->execute([$objetChoisi['id']]);
@@ -211,5 +224,7 @@
         
             echo "Vous avez échangé avec le marchand et obtenu : " . $objetMarchand['nom'] . "\n";
         }
+        
+
 }
 ?>
