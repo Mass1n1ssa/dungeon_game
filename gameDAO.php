@@ -174,7 +174,7 @@
         public function afficherInventaire($idChoisi) {
             $idPersonnage = $idChoisi; // À remplacer par l'ID du personnage en cours
         
-            $requeteInventaire = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ?");
+            $requeteInventaire = $this->bdd->prepare("SELECT objets.nom, inventaire.quantite FROM objets INNER JOIN inventaire ON objets.id = inventaire.objet_id WHERE inventaire.personnage_id = ?");
             $requeteInventaire->execute([$idPersonnage]);
             $objetsInventaire = $requeteInventaire->fetchAll(PDO::FETCH_ASSOC);
         
@@ -183,7 +183,7 @@
             foreach ($objetsInventaire as $index => $objet) {
                 echo $index + 1 . ". " . $objet['nom'] . " - Quantité : " . $objet['quantite'] . "\n";
             }
-        }
+        }        
         
         
         public function effectuerEchange($objetMarchand, $choixInventaire, $idChoisi) {
@@ -211,8 +211,5 @@
         
             echo "Vous avez échangé avec le marchand et obtenu : " . $objetMarchand['nom'] . "\n";
         }
-        
-        
-        
 }
 ?>
