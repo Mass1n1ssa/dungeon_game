@@ -168,14 +168,14 @@
                 $choixInventaire = intval(readline("Choisissez le numéro de l'objet que vous souhaitez échanger : "));
         
                 // À compléter : Logique pour effectuer l'échange avec l'inventaire du personnage
-                $this->effectuerEchange($objetMarchand, $choixInventaire);
+                $this->effectuerEchange($objetMarchand, $choixInventaire,$idChoisi);
             }
         }
         
         public function afficherInventaire($idChoisi) {
             $idPersonnage = $idChoisi; 
         
-            $requeteInventaire = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ?");
+            $requeteInventaire = $this->bdd->prepare("SELECT objets.nom, inventaire.quantite FROM objets INNER JOIN inventaire ON objets.id = inventaire.objet_id WHERE inventaire.personnage_id = ?");
             $requeteInventaire->execute([$idPersonnage]);
             $objetsInventaire = $requeteInventaire->fetchAll(PDO::FETCH_ASSOC);
         
@@ -184,7 +184,7 @@
             foreach ($objetsInventaire as $index => $objet) {
                 echo $index + 1 . ". " . $objet['nom'] . " - Quantité : " . $objet['quantite'] . "\n";
             }
-        }
+        }        
         
         
         public function effectuerEchange($objetMarchand, $choixInventaire, $idChoisi) {
@@ -192,7 +192,7 @@
         
             // Récupérer l'objet choisi dans l'inventaire du personnage
             $requeteObjetChoisi = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ? LIMIT 1 OFFSET ?");
-            $requeteObjetChoisi->execute([$idPersonnage, $choixInventaire - 1]);
+            $requeteObjetChoisi->execute([$idPersonnage, intval($choixInventaire) - 1]);
             $objetChoisi = $requeteObjetChoisi->fetch(PDO::FETCH_ASSOC);
         
             // À compléter : Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
@@ -212,8 +212,5 @@
         
             echo "Vous avez échangé avec le marchand et obtenu : " . $objetMarchand['nom'] . "\n";
         }
-        
-        
-        
 }
 ?>
