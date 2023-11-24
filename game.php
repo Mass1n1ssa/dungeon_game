@@ -127,7 +127,7 @@ include "gameDAO.php";
    
     $personnageDAO = new PersonnageDAO($connexion);
     echo "Bienvenue dans le Donjon !\n";
-    $personnageDAO->LancementJeu();
+    $personnageDAO->marcher();
 ?>
 
     
