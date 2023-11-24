@@ -86,15 +86,16 @@
         
             if ($resultat['type'] == "enigme") {
                 $this->poserEnigme($idChoisi);
-            } else if ($resultat['type'] == "piege") {
-                $this->activePiege();
-                echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
+            // } else if ($resultat['type'] == "piege") {
+            //     $this->activePiege();
+            //     echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
             } else if ($resultat['type'] == "marchand") {
-                $this->marchand($idChoisi);
-            } else if ($resultat['type'] == "monstre") {
-                $this->combat();
-            }
+                $this->marchand($idChoisi); // Passer l'argument $idChoisi
+            // } else if ($resultat['type'] == "monstre") {
+            //     $this->combat($idChoisi); // Passer l'argument $idChoisi
+            // }
         }
+    }
         
   
 
@@ -128,27 +129,27 @@
         }
 
         
-        public function activePiege(){
-            $this->pv -=30; 
-        }
+        // public function activePiege(){
+        //     $this->pv -=30; 
+        // }
         
         
 
-        public function combat(){
-            $requete = $this->bdd->prepare("SELECT * FROM personnages WHERE niveau = ?");
-            $requete = $this->bdd->prepare("SELECT * FROM monstres ORDER BY RAND() LIMIT 1");
-            $requete->execute();
-            $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+        // public function combat(){
+        //     $requete = $this->bdd->prepare("SELECT * FROM personnages WHERE niveau = ?");
+        //     $requete = $this->bdd->prepare("SELECT * FROM monstres ORDER BY RAND() LIMIT 1");
+        //     $requete->execute();
+        //     $resultat = $requete->fetch(PDO::FETCH_ASSOC);
 
-            if ($resultat['niveau'] == $this->niveau) {
-                echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-            } else if ($resultat['niveau'] > $this->niveau) {
-                echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-            } else if ($resultat['niveau'] < $this->niveau) {
+        //     if ($resultat['niveau'] == $this->niveau) {
+        //         echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
+        //     } else if ($resultat['niveau'] > $this->niveau) {
+        //         echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
+        //     } else if ($resultat['niveau'] < $this->niveau) {
 
-            echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-            }
-        }
+        //     echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
+        //     }
+        // }
 
         public function marchand($idChoisi) {
             echo "Vous êtes tombé sur un marchand !\n";
@@ -172,7 +173,7 @@
         }
         
         public function afficherInventaire($idChoisi) {
-            $idPersonnage = $idChoisi; // À remplacer par l'ID du personnage en cours
+            $idPersonnage = $idChoisi; 
         
             $requeteInventaire = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ?");
             $requeteInventaire->execute([$idPersonnage]);
@@ -187,7 +188,7 @@
         
         
         public function effectuerEchange($objetMarchand, $choixInventaire, $idChoisi) {
-            $idPersonnage = $idChoisi; // À remplacer par l'ID du personnage en cours
+            $idPersonnage = $idChoisi; 
         
             // Récupérer l'objet choisi dans l'inventaire du personnage
             $requeteObjetChoisi = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ? LIMIT 1 OFFSET ?");
