@@ -28,8 +28,8 @@
                 " - Points d'attaque : " . $resultat['points_attaque']."\n" . 
                 " - Points de défense : " . $resultat['points_defense']."\n" . 
                 " - Expérience : " . $resultat['experience']."\n" . 
-                " - Niveau : " . $resultat['niveau']."\n" . 
-                " - Arme : " . $resultat['nom_arme'] . "\n";
+                " - Niveau : " . $resultat['niveau']."\n";
+                // " - Arme : " . $resultat['nom_arme'] . "\n";
             }
         
             $idChoisi = readline("Choisissez le numéro du personnage avec lequel vous voulez combattre : ");
@@ -48,33 +48,34 @@
             }
         }
 
-public function startGame($idChoisi){
-    $requete = $this->bdd->prepare("SELECT points_de_vie FROM Personnages WHERE id = ?");
-    $requete->execute([$idChoisi]);
-    $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+        public function startGame($idChoisi){
+            $requete = $this->bdd->prepare("SELECT points_de_vie FROM Personnages WHERE id = ?");
+            $requete->execute([$idChoisi]);
+            $resultat = $requete->fetch(PDO::FETCH_ASSOC);
 
-    $points_de_vie = $resultat['points_de_vie'];
+            $points_de_vie = $resultat['points_de_vie'];
 
-    while ($points_de_vie > 0) {
-        $choix = intval(readline("Que voulez-vous faire ? (1. Marcher / 2. Sauvegarder / 3. Quitter) : "));
+            while ($points_de_vie > 0) {
+                $choix = intval(readline("Que voulez-vous faire ? (1. Marcher / 2. Sauvegarder / 3. Quitter) : "));
 
-        if ($choix === 1) {
-            $this->marcher();
-        } else if ($choix === 2) {
-            // À définir : logique pour sauvegarder
-            echo "Vous avez sauvegardé.\n";
-        } else if ($choix === 3) {
-            echo "Au revoir !";
-            break; // Sortir de la boucle si le joueur choisit de quitter
-        } else {
-            echo "Veuillez choisir une option valide !\n";
+                if ($choix === 1) {
+                    $this->marcher();
+                } else if ($choix === 2) {
+                    // À définir : logique pour sauvegarder
+                    echo "Vous avez sauvegardé.\n";
+                } else if ($choix === 3) {
+                    echo "Au revoir !";
+                    break; // Sortir de la boucle si le joueur choisit de quitter
+                } else {
+                    echo "Veuillez choisir une option valide !\n";
+                }
+            }
+
+            if ($points_de_vie <= 0) {
+                echo "Vous n'avez plus de points de vie. Game Over!\n";
+            }
         }
-    }
-
-    if ($points_de_vie <= 0) {
-        echo "Vous n'avez plus de points de vie. Game Over!\n";
-    }
-}
+        
         public function marcher() {
             $requete = $this->bdd->prepare("SELECT * FROM salles ORDER BY RAND() LIMIT 1");
             $requete->execute();
@@ -87,8 +88,8 @@ public function startGame($idChoisi){
             } else if ($resultat['type'] == "piege") {
                 $this->activePiege();
                 echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
-            // } else if ($resultat['type'] == "marchand") {
-            //     echo "Vous êtes tombé sur un marchand !\n";
+            } else if ($resultat['type'] == "marchand") {
+                echo "Vous êtes tombé sur un marchand !\n";
             } else if ($resultat['type'] == "monstre") {
                 $this->combat();
             }
