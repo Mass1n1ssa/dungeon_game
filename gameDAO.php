@@ -102,27 +102,28 @@
             $requete = $this->bdd->prepare("SELECT * FROM enigmes ORDER BY RAND() LIMIT 1");
             $requete->execute();
             $resultat = $requete->fetch(PDO::FETCH_ASSOC);
-
+        
             echo $resultat['question'] . "\n";
             $reponseUtilisateur = trim(readline("Entrez votre réponse : "));
-
+        
             if ($reponseUtilisateur == $resultat['reponse']) {
                 echo "Bravo, c'est la bonne réponse !\n";
-
-                // Sélection aléatoire d'un objet dans la table objets
-                $requeteObjetAleatoire = $this->bdd->query("SELECT id FROM objets ORDER BY RAND() LIMIT 1");
-                $idObjetGagne = $requeteObjetAleatoire->fetchColumn();
-                
-                if ($idObjetGagne) {
+        
+                // Sélection aléatoire d'un objet non déjà gagné par le joueur
+                $requeteObjetAleatoire = $this->bdd->prepare("SELECT id, nom FROM objets WHERE id NOT IN (SELECT objet_id FROM inventaire WHERE personnage_id = ?) ORDER BY RAND() LIMIT 1");
+                $requeteObjetAleatoire->execute([$idChoisi]);
+                $objetGagne = $requeteObjetAleatoire->fetch(PDO::FETCH_ASSOC);
+        
+                if ($objetGagne) {
                     // Ajout de l'objet gagné dans l'inventaire du personnage
                     $requeteInsert = $this->bdd->prepare("INSERT INTO inventaire (personnage_id, objet_id, quantite) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE quantite = quantite + 1");
-                    $requeteInsert->execute([$idChoisi, $idObjetGagne]);
-
-                    echo "Vous avez gagné un nouvel objet !\n";
+                    $requeteInsert->execute([$idChoisi, $objetGagne['id']]);
+        
+                    echo "Vous avez gagné un nouvel objet : " . $objetGagne['nom'] . " !\n";
                 }
             } else {
                 echo "Désolé, ce n'est pas la bonne réponse.\n";
-                $this->marcher(); // Revenir à la marche après une réponse incorrecte
+                $this->marcher($idChoisi); // Revenir à la marche après une réponse incorrecte
             }
         }
 
