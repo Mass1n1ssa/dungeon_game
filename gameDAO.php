@@ -167,7 +167,7 @@
                 $choixInventaire = intval(readline("Choisissez le numéro de l'objet que vous souhaitez échanger : "));
         
                 // À compléter : Logique pour effectuer l'échange avec l'inventaire du personnage
-                $this->effectuerEchange($objetMarchand, $choixInventaire);
+                $this->effectuerEchange($objetMarchand, $choixInventaire,$idChoisi);
             }
         }
         
@@ -191,7 +191,7 @@
         
             // Récupérer l'objet choisi dans l'inventaire du personnage
             $requeteObjetChoisi = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ? LIMIT 1 OFFSET ?");
-            $requeteObjetChoisi->execute([$idPersonnage, $choixInventaire - 1]);
+            $requeteObjetChoisi->execute([$idPersonnage, intval($choixInventaire) - 1]);
             $objetChoisi = $requeteObjetChoisi->fetch(PDO::FETCH_ASSOC);
         
             // À compléter : Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
