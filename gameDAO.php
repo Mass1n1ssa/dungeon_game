@@ -56,14 +56,11 @@
             $points_de_vie = $resultat['points_de_vie'];
 
             while ($points_de_vie > 0) {
-                $choix = intval(readline("Que voulez-vous faire ? (1. Marcher / 2. Sauvegarder / 3. Quitter) : "));
+                $choix = intval(readline("Que voulez-vous faire ? (1. Marcher / 2. Quitter) : "));
 
                 if ($choix === 1) {
                     $this->marcher($idChoisi);
                 } else if ($choix === 2) {
-                    // À définir : logique pour sauvegarder
-                    echo "Vous avez sauvegardé.\n";
-                } else if ($choix === 3) {
                     echo "Au revoir !";
                     break; // Sortir de la boucle si le joueur choisit de quitter
                 }
@@ -92,7 +89,10 @@
                 $this->marchand($idChoisi);
             } else if ($resultat['type'] == "monstre") {
                 $this->combat($idChoisi);
-             }
+            }
+
+            $requeteUpdatePersonnage = $this->bdd->prepare("UPDATE Personnages SET points_de_vie = ? WHERE id = ?");
+            $requeteUpdatePersonnage->execute([$points_de_vie, $idChoisi]);
         }
     
         
@@ -137,6 +137,7 @@
             $requeteUpdate->execute([$points_de_vie, $idChoisi]);
         
             echo "En marchant sur un piège, vous perdez 20 points de vie !\n";
+
         }
 
 
@@ -159,6 +160,8 @@
                 // À compléter : Logique pour effectuer l'échange avec l'inventaire du personnage
                 $this->effectuerEchange($objetMarchand, $choixInventaire,$idChoisi);
             }
+
+            
         }
         
         public function afficherInventaire($idChoisi) {
@@ -209,6 +212,8 @@
             $requeteAjout->execute([$idPersonnage, $objetMarchand['id']]);
 
             echo "Vous avez échangé avec le marchand et obtenu : " . $objetMarchand['nom'] . "\n";
+
+         
         }
         
 
@@ -272,6 +277,9 @@
                     }
                     $personnageTour = true;
                 }
+
+                $requeteUpdatePersonnage = $this->bdd->prepare("UPDATE Personnages SET points_de_vie = ?, points_attaque = ?, points_defense = ? WHERE id = ?");
+                $requeteUpdatePersonnage->execute([$pointsViePersonnage, $attaquePersonnage, $defensePersonnage, $idChoisi]);
         
                 // Vérifier si le personnage a encore des points de vie
                 if ($pointsViePersonnage <= 0) {
@@ -282,7 +290,11 @@
                 // Afficher les points de vie restants du personnage et du monstre pour continuer le combat
                 echo "Points de vie restants : Personnage = " . $pointsViePersonnage . ", Monstre = " . $pointsVieMonstre . "\n";
             }
+
+           
         }
+        
+        
         
     }
 ?>
