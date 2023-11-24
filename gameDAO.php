@@ -33,19 +33,20 @@
         
             $idChoisi = readline("Choisissez le numéro du personnage avec lequel vous voulez combattre : ");
 
-    $requete = $this->bdd->prepare("SELECT * FROM Personnages WHERE id = ?");
-    $requete->execute([$idChoisi]);
-    $personnage = $requete->fetch(PDO::FETCH_ASSOC);
+            $requete = $this->bdd->prepare("SELECT * FROM Personnages WHERE id = ?");
+            $requete->execute([$idChoisi]);
+            $personnage = $requete->fetch(PDO::FETCH_ASSOC);
 
-    echo "L'aventure va commencer avec le personnage : " . $personnage['nom'] . "\n";
+            echo "L'aventure va commencer avec le personnage : " . $personnage['nom'] . "\n";
 
-    $choix = readline("Êtes-vous prêt à commencer l'aventure ? (oui/non) : ");
-    if ($choix == "oui") {
-        $this->startGame($idChoisi);
-    } else {
-        echo "Au revoir !";
-    }
-}
+            $choix = readline("Êtes-vous prêt à commencer l'aventure ? (oui/non) : ");
+            if ($choix == "oui") {
+                $this->startGame($idChoisi);
+            } else {
+                echo "Au revoir !";
+            }
+            $this->startGame($idChoisi);
+        }
 
 
         public function startGame($idChoisi){
@@ -59,7 +60,7 @@
                 $choix = intval(readline("Que voulez-vous faire ? (1. Marcher / 2. Sauvegarder / 3. Quitter) : "));
 
                 if ($choix === 1) {
-                    $this->marcher();
+                    $this->marcher($idChoisi);
                 } else if ($choix === 2) {
                     // À définir : logique pour sauvegarder
                     echo "Vous avez sauvegardé.\n";
@@ -76,7 +77,7 @@
             }
         }
 
-        public function marcher() {
+        public function marcher($idChoisi) {
             $requete = $this->bdd->prepare("SELECT * FROM salles ORDER BY RAND() LIMIT 1");
             $requete->execute();
             $resultat = $requete->fetch(PDO::FETCH_ASSOC);
@@ -89,7 +90,7 @@
                 $this->activePiege();
                 echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
             } else if ($resultat['type'] == "marchand") {
-                echo "Vous êtes tombé sur un marchand !\n";
+                $this->marchand($idChoisi);
             } else if ($resultat['type'] == "monstre") {
                 $this->combat();
             }
@@ -131,7 +132,72 @@
             } else if ($resultat['niveau'] < $this->niveau) {
 
             echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-    }
-    }
+            }
+        }
+
+        public function marchand($idChoisi) {
+            echo "Vous êtes tombé sur un marchand !\n";
+            echo "Le marchand propose l'objet suivant :\n";
+        
+            $requeteObjets = $this->bdd->prepare("SELECT * FROM objets ORDER BY RAND() LIMIT 1");
+            $requeteObjets->execute();
+            $objetMarchand = $requeteObjets->fetch(PDO::FETCH_ASSOC);
+        
+            echo "1. " . $objetMarchand['nom'] . " - Points d'attaque bonus : " . $objetMarchand['points_attaque_bonus'] . "\n";
+        
+            $choixMarchand = strtolower(readline("Voulez-vous échanger un objet contre celui-ci ? (oui/non) : "));
+        
+            if ($choixMarchand == "oui") {
+                $this->afficherInventaire($idChoisi);
+                $choixInventaire = intval(readline("Choisissez le numéro de l'objet que vous souhaitez échanger : "));
+        
+                // À compléter : Logique pour effectuer l'échange avec l'inventaire du personnage
+                $this->effectuerEchange($objetMarchand, $choixInventaire);
+            }
+        }
+        
+        public function afficherInventaire($idChoisi) {
+            $idPersonnage = $idChoisi; // À remplacer par l'ID du personnage en cours
+        
+            $requeteInventaire = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ?");
+            $requeteInventaire->execute([$idPersonnage]);
+            $objetsInventaire = $requeteInventaire->fetchAll(PDO::FETCH_ASSOC);
+        
+            echo "Votre inventaire :\n";
+        
+            foreach ($objetsInventaire as $index => $objet) {
+                echo $index + 1 . ". " . $objet['nom'] . " - Quantité : " . $objet['quantite'] . "\n";
+            }
+        }
+        
+        
+        public function effectuerEchange($objetMarchand, $choixInventaire, $idChoisi) {
+            $idPersonnage = $idChoisi; // À remplacer par l'ID du personnage en cours
+        
+            // Récupérer l'objet choisi dans l'inventaire du personnage
+            $requeteObjetChoisi = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ? LIMIT 1 OFFSET ?");
+            $requeteObjetChoisi->execute([$idPersonnage, $choixInventaire - 1]);
+            $objetChoisi = $requeteObjetChoisi->fetch(PDO::FETCH_ASSOC);
+        
+            // À compléter : Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
+            if ($objetMarchand['niveau_requis'] > $niveauPersonnage) {
+                echo "Vous n'avez pas le niveau requis pour effectuer cet échange.\n";
+                return;
+            }
+        
+            // À compléter : Mettez à jour la table d'inventaire du personnage
+            // Supprimez l'objet choisi de l'inventaire
+            $requeteSuppression = $this->bdd->prepare("DELETE FROM inventaire WHERE id = ?");
+            $requeteSuppression->execute([$objetChoisi['id']]);
+        
+            // Ajoutez l'objet du marchand dans l'inventaire
+            $requeteAjout = $this->bdd->prepare("INSERT INTO inventaire (personnage_id, objet_id, quantite) VALUES (?, ?, 1)");
+            $requeteAjout->execute([$idPersonnage, $objetMarchand['id']]);
+        
+            echo "Vous avez échangé avec le marchand et obtenu : " . $objetMarchand['nom'] . "\n";
+        }
+        
+        
+        
 }
 ?>
