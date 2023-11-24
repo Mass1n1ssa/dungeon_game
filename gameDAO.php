@@ -131,13 +131,12 @@
             $requete->execute([$idChoisi]);
             $resultat = $requete->fetch(PDO::FETCH_ASSOC);
         
-            $points_de_vie = $resultat['points_de_vie'] - 20;
+            $points_de_vie = $resultat['points_de_vie'] - 10;
         
             $requeteUpdate = $this->bdd->prepare("UPDATE Personnages SET points_de_vie = ? WHERE id = ?");
             $requeteUpdate->execute([$points_de_vie, $idChoisi]);
         
             echo "En marchant sur un piège, vous perdez 20 points de vie !\n";
-
         }
 
 
@@ -240,29 +239,47 @@
             $defenseMonstre = $statsMonstre['points_defense'];
         
             echo "Vous entrez dans une salle : " . $resultat['nom'] . "\n";
-        
-            $personnageTour = true; // Pour suivre le tour du personnage
-        
-            while ($pointsViePersonnage > 0 && $pointsVieMonstre > 0) {
-                if ($personnageTour) {
-                    // Tour du personnage
-                    $choixAction = strtolower(readline("Voulez-vous attaquer ou défendre ? (attaquer/défendre) : "));
-        
-                    if ($choixAction === "attaquer") {
-                        // Calcul des dégâts infligés par le personnage
-                        $degats = max(0, $attaquePersonnage - $defenseMonstre);
-                        $pointsVieMonstre -= $degats;
-                        echo "Vous avez infligé " . $degats . " points de dégâts au monstre!\n";
-                    } elseif ($choixAction === "défendre") {
-                        // Logique pour la défense
-                        $defensePersonnage = $defensePersonnage + rand(5, 15); // Augmentez la défense du personnage aléatoirement
-                        echo "Vous vous êtes défendu contre l'attaque du monstre!\n";
+
+    $personnageTour = true;
+    $objetsInventaire = $this->afficherInventaire($idChoisi);
+
+    while ($pointsViePersonnage > 0 && $pointsVieMonstre > 0) {
+        if ($personnageTour) {
+            $choixAction = strtolower(readline("Voulez-vous faire ? (attaquer/défendre/Inventaire) : "));
+
+            if ($choixAction === "attaquer") {
+                $degats = max(0, $attaquePersonnage - $defenseMonstre);
+                $pointsVieMonstre -= $degats;
+                echo "Vous avez infligé " . $degats . " points de dégâts au monstre!\n";
+            } elseif ($choixAction === "défendre") {
+               // Logique pour la défense
+               $defensePersonnage = $defensePersonnage + rand(5, 15); // Augmentez la défense du personnage aléatoirement
+               echo "Vous vous êtes défendu contre l'attaque du monstre!\n";
+            } elseif ($choixAction === "inventaire") {
+                $this->afficherInventaire($idChoisi);
+                $choixInventaire = intval(readline("Sélectionnez l'objet à utiliser (entrez le numéro) : ")) - 1;
+
+                if (is_array($objetsInventaire) && $choixInventaire >= 0 && $choixInventaire < count($objetsInventaire)) {
+                    $objetSelectionne = $objetsInventaire[$choixInventaire];
+
+                    if ($objetSelectionne['type'] === 'arme') {
+                        $attaquePersonnage += $objetSelectionne['points_attaque_bonus'];
+                        echo "Vous avez équipé : " . $objetSelectionne['nom'] . " (+{$objetSelectionne['points_attaque_bonus']} points d'attaque)!\n";
+                    } elseif ($objetSelectionne['type'] === 'potion') {
+                        $pointsViePersonnage += $objetSelectionne['points_vie'];
+                        echo "Vous avez utilisé une potion : " . $objetSelectionne['nom'] . " (+{$objetSelectionne['points_vie']} points de vie)!\n";
                     } else {
-                        echo "Veuillez choisir une action valide (attaquer/défendre) !\n";
-                        continue;
+                        echo "Cet objet ne peut pas être utilisé pendant le combat.\n";
                     }
-                    $personnageTour = false;
                 } else {
+                    echo "Choix d'inventaire invalide.\n";
+                }
+            } else {
+                echo "Veuillez choisir une action valide (attaquer/défendre/inventaire) !\n";
+                continue;
+            }
+            $personnageTour = false;
+        } else {
                     // Tour du monstre
                     $actionMonstre = rand(0, 1);
                     if ($actionMonstre === 0) {
@@ -289,12 +306,15 @@
         
                 // Afficher les points de vie restants du personnage et du monstre pour continuer le combat
                 echo "Points de vie restants : Personnage = " . $pointsViePersonnage . ", Monstre = " . $pointsVieMonstre . "\n";
+                $this->mettreAJourStatsPersonnage($idChoisi, $pointsViePersonnage, $attaquePersonnage, $defensePersonnage);
             }
 
-           
         }
         
-        
+        public function mettreAJourStatsPersonnage($id, $nouveauxPointsVie, $nouveauxPointsAttaque, $nouveauxPointsDefense) {
+            $requete = $this->bdd->prepare("UPDATE Personnages SET points_de_vie = ?, points_attaque = ?, points_defense = ? WHERE id = ?");
+            $requete->execute([$nouveauxPointsVie, $nouveauxPointsAttaque, $nouveauxPointsDefense, $id]);
+        }
         
     }
 ?>
