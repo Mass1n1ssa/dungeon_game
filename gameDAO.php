@@ -67,7 +67,8 @@
                 } else if ($choix === 3) {
                     echo "Au revoir !";
                     break; // Sortir de la boucle si le joueur choisit de quitter
-                } else {
+                }
+                else{ 
                     echo "Veuillez choisir une option valide !\n";
                 }
             }
@@ -91,11 +92,11 @@
             //     echo "En marchant sur un piége vous activez des épines qui font mal et vous en fait perdre 30 points de vie et vous aurez !\n";
             } else if ($resultat['type'] == "marchand") {
                 $this->marchand($idChoisi); // Passer l'argument $idChoisi
-            // } else if ($resultat['type'] == "monstre") {
-            //     $this->combat($idChoisi); // Passer l'argument $idChoisi
-            // }
+            } else if ($resultat['type'] == "monstre") {
+                $this->combat($idChoisi); // Passer l'argument $idChoisi
+            }
         }
-    }
+    
         
   
 
@@ -128,28 +129,7 @@
             }
         }
 
-        
-        // public function activePiege(){
-        //     $this->pv -=30; 
-        // }
-        
-        
 
-        // public function combat(){
-        //     $requete = $this->bdd->prepare("SELECT * FROM personnages WHERE niveau = ?");
-        //     $requete = $this->bdd->prepare("SELECT * FROM monstres ORDER BY RAND() LIMIT 1");
-        //     $requete->execute();
-        //     $resultat = $requete->fetch(PDO::FETCH_ASSOC);
-
-        //     if ($resultat['niveau'] == $this->niveau) {
-        //         echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-        //     } else if ($resultat['niveau'] > $this->niveau) {
-        //         echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-        //     } else if ($resultat['niveau'] < $this->niveau) {
-
-        //     echo "Vous êtes tombé sur un monstre : " . $resultat['nom'] . "\n";
-        //     }
-        // }
 
         public function marchand($idChoisi) {
             echo "Vous êtes tombé sur un marchand !\n";
@@ -185,32 +165,114 @@
                 echo $index + 1 . ". " . $objet['nom'] . " - Quantité : " . $objet['quantite'] . "\n";
             }
         }        
-        
-        
         public function effectuerEchange($objetMarchand, $choixInventaire, $idChoisi) {
-            $idPersonnage = $idChoisi; 
-        
+            $idPersonnage = $idChoisi;
+
+            // Retrieve the level of the player from the database
+            $requeteNiveau = $this->bdd->prepare("SELECT niveau FROM Personnages WHERE id = ?");
+            $requeteNiveau->execute([$idPersonnage]);
+            $resultatNiveau = $requeteNiveau->fetch(PDO::FETCH_ASSOC);
+
+            $niveauPersonnage = $resultatNiveau['niveau'];
+
+            // Récupérer tous les objets dans l'inventaire du personnage
+            $requeteObjetsInventaire = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ?");
+            $requeteObjetsInventaire->execute([$idChoisi]);
+            $objetsInventaire = $requeteObjetsInventaire->fetchAll(PDO::FETCH_ASSOC);
+
             // Récupérer l'objet choisi dans l'inventaire du personnage
-            $requeteObjetChoisi = $this->bdd->prepare("SELECT * FROM inventaire WHERE personnage_id = ? LIMIT 1 OFFSET ?");
-            $requeteObjetChoisi->execute([$idPersonnage, intval($choixInventaire) - 1]);
-            $objetChoisi = $requeteObjetChoisi->fetch(PDO::FETCH_ASSOC);
-        
-            // À compléter : Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
+            $objetChoisi = $objetsInventaire[(int)$choixInventaire - 1];
+
+            // Ajoutez la logique pour vérifier si l'échange est possible (niveau requis, etc.)
             if ($objetMarchand['niveau_requis'] > $niveauPersonnage) {
                 echo "Vous n'avez pas le niveau requis pour effectuer cet échange.\n";
                 return;
             }
-        
-            // À compléter : Mettez à jour la table d'inventaire du personnage
+
+            // Mettez à jour la table d'inventaire du personnage
             // Supprimez l'objet choisi de l'inventaire
             $requeteSuppression = $this->bdd->prepare("DELETE FROM inventaire WHERE id = ?");
             $requeteSuppression->execute([$objetChoisi['id']]);
-        
+
             // Ajoutez l'objet du marchand dans l'inventaire
             $requeteAjout = $this->bdd->prepare("INSERT INTO inventaire (personnage_id, objet_id, quantite) VALUES (?, ?, 1)");
             $requeteAjout->execute([$idPersonnage, $objetMarchand['id']]);
-        
+
             echo "Vous avez échangé avec le marchand et obtenu : " . $objetMarchand['nom'] . "\n";
         }
-}
+        
+
+        public function combat($idChoisi){
+            $requete = $this->bdd->prepare("SELECT * FROM monstres ORDER BY RAND() LIMIT 1");
+            $requete->execute();
+            $resultat = $requete->fetch(PDO::FETCH_ASSOC);
+        
+            $requeteStatsPersonnage = $this->bdd->prepare("SELECT points_de_vie, points_attaque, points_defense FROM Personnages WHERE id = ?");
+            $requeteStatsPersonnage->execute([$idChoisi]);
+            $statsPersonnage = $requeteStatsPersonnage->fetch(PDO::FETCH_ASSOC);
+        
+            $pointsViePersonnage = $statsPersonnage['points_de_vie'];
+            $attaquePersonnage = $statsPersonnage['points_attaque'];
+            $defensePersonnage = $statsPersonnage['points_defense'];
+        
+            // Récupérer les statistiques du monstre
+            $requeteStatsMonstre = $this->bdd->prepare("SELECT points_de_vie, points_attaque, points_defense FROM monstres ORDER BY points_de_vie ASC");
+            $requeteStatsMonstre->execute();
+            $statsMonstre = $requeteStatsMonstre->fetch(PDO::FETCH_ASSOC);
+        
+            $pointsVieMonstre = $statsMonstre['points_de_vie'];
+            $attaqueMonstre = $statsMonstre['points_attaque'];
+            $defenseMonstre = $statsMonstre['points_defense'];
+        
+            echo "Vous entrez dans une salle : " . $resultat['nom'] . "\n";
+        
+            $personnageTour = true; // Pour suivre le tour du personnage
+        
+            while ($pointsViePersonnage > 0 && $pointsVieMonstre > 0) {
+                if ($personnageTour) {
+                    // Tour du personnage
+                    $choixAction = strtolower(readline("Voulez-vous attaquer ou défendre ? (attaquer/défendre) : "));
+        
+                    if ($choixAction === "attaquer") {
+                        // Calcul des dégâts infligés par le personnage
+                        $degats = max(0, $attaquePersonnage - $defenseMonstre);
+                        $pointsVieMonstre -= $degats;
+                        echo "Vous avez infligé " . $degats . " points de dégâts au monstre!\n";
+                    } elseif ($choixAction === "défendre") {
+                        // Logique pour la défense
+                        $defensePersonnage = $defensePersonnage + rand(5, 15); // Augmentez la défense du personnage aléatoirement
+                        echo "Vous vous êtes défendu contre l'attaque du monstre!\n";
+                    } else {
+                        echo "Veuillez choisir une action valide (attaquer/défendre) !\n";
+                        continue;
+                    }
+                    $personnageTour = false;
+                } else {
+                    // Tour du monstre
+                    $actionMonstre = rand(0, 1);
+                    if ($actionMonstre === 0) {
+                        // Attaque du monstre
+                        $degatsMonstre = max(0, $attaqueMonstre - $defensePersonnage);
+                        $pointsViePersonnage -= $degatsMonstre;
+                        echo "Le monstre vous a infligé " . $degatsMonstre . " points de dégâts!\n";
+                    } else {
+                        // Défense du monstre
+                        $defenseMonstre = $defenseMonstre; // Augmentez la défense du monstre aléatoirement
+                        echo "Le monstre se défend contre votre attaque!\n";
+                    }
+                    $personnageTour = true;
+                }
+        
+                // Vérifier si le personnage a encore des points de vie
+                if ($pointsViePersonnage <= 0) {
+                    echo "Vous avez été vaincu par le monstre!\n";
+                    break;
+                }
+        
+                // Afficher les points de vie restants du personnage et du monstre pour continuer le combat
+                echo "Points de vie restants : Personnage = " . $pointsViePersonnage . ", Monstre = " . $pointsVieMonstre . "\n";
+            }
+        }
+        
+    }
 ?>
